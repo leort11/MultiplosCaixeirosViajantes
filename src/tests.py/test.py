@@ -23,6 +23,41 @@ distances = [
       [ 662, 1210,  754, 1358, 1244,  708,  480,  856,  514,  468,  354,  844,  730,  536,  194,  798,    0]
     ]
 
+# def nearest_neighbor_heuristic():
+#     tour = [0]
+#     unvisited = list(range(1, n_cities))
+#     while unvisited:
+#         next = min(unvisited, key = lambda candidate : distances[tour[-1]][candidate])
+#         tour.append(next)
+#         unvisited.remove(next)
+
+#     return tour
+
+
+
+# def get_total_distance(tour : list):
+#     total_distance = 0
+
+#     for i in range(n_cities - 1):
+#         total_distance = total_distance + distances[tour[i]][tour[i + 1]]
+
+#     total_distance = total_distance + distances[tour[-1]][tour[0]]
+#     return total_distance
+
+
+
+# Cópia da função do professor para calcular a distância percorrida.
+def distanciaTotal (tour: list):
+    total = 0
+    
+    for i in range(n_cities - 1):
+        total = total + distances[tour[i][tour[i + 1]]]
+        
+    total = total + distances[tour[-1][tour[0]]]
+    
+    return total
+        
+ 
 def get_total_distance(tour : list):
 
     total_distance = 0
@@ -64,5 +99,8 @@ def random_nearest_neighbor_heuristic():
 
     return tour
 
+    
+       
+       
 tour = nearest_neighbor_heuristic()
 print (tour, get_total_distance(tour))

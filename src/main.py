@@ -1,7 +1,6 @@
-import random
-import math
+from plot import plot_path
 
-n_cities = 17 # Total: 17
+n_cities = 17 # Total possivel: 17 (Incluindo a cidade 0)
 n_traveller = 2
 distances = [
     [ 0,   548,  776,  696,  582,  274,  502,  194, 308,  194, 536,  502,  388,  354,  468,  776,  662  ],
@@ -20,42 +19,90 @@ distances = [
     [ 354, 674,  1130, 822,  708,  628,  856,  320, 662,  388, 730,  308,  194,  0,    342,  422,  536  ],
     [ 468, 1016, 788,  1164, 1050, 514,  514,  662, 320,  274, 388,  650,  536,  342,  0,    764,  194  ],
     [ 776, 868,  1552, 560,  674,  1050, 1278, 742, 1084, 810, 1152, 274,  388,  422,  764,  0,    798  ],
-    [ 662, 1210, 754,  1358, 1244, 708,  480,  856, 514,  468, 354,  844,  730,  536,  194,  798,  0    ],
+    [ 662, 1210, 754,  1358, 1244, 708,  480,  856, 514,  468, 354,  844,  730,  536,  194,  798,  0    ]
 ]
+
 
 def get_total_distance(tour : list):
     total_distance = 0
 
-    for i in range(n_cities - 1):
+    for i in range(len(tour) - 1):
         total_distance = total_distance + distances[tour[i]][tour[i + 1]]
-
-    total_distance = total_distance + distances[tour[-1]][tour[0]]
+    
     return total_distance
 
-# def nearest_neighbor_heuristic():
-#     tour = [0]
-#     unvisited = list(range(1, n_cities))
+# Heuristica de cidade mais proxima.
+def find_nearest_city(tours, unvisited, tour_index): 
+    return min(unvisited, key = lambda candidate : distances[tours[tour_index][-1]][candidate])
 
+# Heuristica de cidade mais distante.
+def find_farthest_city(tours, unvisited, tour_index):
+    return max(unvisited, key = lambda candidate : distances[tours[tour_index][-1]][candidate])
 
-#     while unvisited:
-#         next = min(unvisited, key = lambda candidate : distances[tour[-1]][candidate])
-#         tour.append(next)
-#         unvisited.remove(next)
+def solution_multiple_travellers(heuristic):
+    global n_traveller
 
-#     return tour
-
-def nearest_neighbor_heuristic_multiple():
-    tour = [[0] for _ in range(n_traveller)]
-    unvisited = list(range(1, n_cities))
-    cities_per_traveller = int((n_cities-1)/n_traveller)
-
-    for tour_index in range(len(tour)):
-        for city_index in range(cities_per_traveller):
-            tour[tour_index].append(unvisited[city_index])
-            unvisited.remove(city_index)
+    # Verifica se tem mais caixeiros do que cidades
+    n_traveller_remaining = 0 # Numero de caixeiros viajantes que não farão nada
+    if (n_traveller > n_cities - 1):
+        n_traveller_remaining = n_traveller - (n_cities - 1)
+        n_traveller = n_cities - 1 # Limita o numero de caixeiros para o numero de cidade
     
-    return tour
+    # Cria um tour para cada caixeiro
+    # Cada caixeiro vai começar com a cidade 0 já visitada
+    tours = [[0] for _ in range(n_traveller)]
+
+    # São as cidades que os caixeiros vão ter que visitar
+    unvisited = list(range(1, n_cities))
+
+    # Quantidade de cidade que cada caixeiro vai visitar (Tirando a 0)
+    cities_per_traveller = (n_cities - 1)/n_traveller
+
+    # Verifica se o numero de cidades por viajante é quebrado/decimal
+    # Se sim, o ultimo caixeiro irá visitar uma cidade a mais
+    decimal_number = False
+    if (not cities_per_traveller.is_integer()):
+        decimal_number = True
+    cities_per_traveller = int(cities_per_traveller) # Converte denovo para um numero inteiro (arredondando para baixo)
+
+    # Passa por cada caixeiro
+    for tour_index in range(len(tours)):
+        # Caso seja a ultima viagem e é um número quebrado, aumentar esta viajem por 1
+        if (tour_index == len(tours) - 1 and decimal_number):
+            cities_per_traveller += 1
+
+        # Passa por cada cidade
+        for city_index in range(cities_per_traveller, 0, -1):
+            next = heuristic(tours, unvisited, tour_index)
+            tours[tour_index].append(next)
+            unvisited.remove(next)
+
+        # Adiciona a cidade 0 já que tem que voltar pra ela
+        tours[tour_index].append(0)
+
+    # Adiciona os caixeiros que não vão fazer nada para a lista
+    for _ in range(n_traveller_remaining):
+        tours.append([0])
+
+    # Atualiza denovo a variavel que mudou temporariamente para o numero limite.
+    n_traveller += n_traveller_remaining
+    
+    # vai retornar: [0, 7, 5, 8, 6, 2, 10, 9], [0, 13, 12, 11, 15, 3, 4, 1] (exemplo com 2 caixeiros e 16 cidades)
+    return tours
 
 
-tour = nearest_neighbor_heuristic_multiple()
-print(tour)
+tours = solution_multiple_travellers(find_farthest_city)
+total_distance = 0
+for tour in tours:
+    #  tour1: [0, 7, 5, 8, 6, 2, 10, 9]
+    #  tour2: [0, 13, 12, 11, 15, 3, 4, 1]
+    distance = get_total_distance(tour)
+
+    print(f"{tour}: {distance}m")
+    total_distance += distance
+
+print(f"Distancia total: {total_distance}m")
+print(f"Numero de cidades: {n_cities}")
+print(f"Número de caixeiros viajantes: {n_traveller}")
+
+plot_path(distances, tours)
