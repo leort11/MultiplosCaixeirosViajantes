@@ -4,10 +4,6 @@ import random
 import matplotlib.pyplot as plt
 from sklearn import manifold
 
-# pip install numpy
-# pip install matplotlib
-# pip install -U scikit-learn
-
 # CREDITOS:
 # https://stackoverflow.com/questions/35363444/plotting-lines-connecting-points
 # https://baoilleach.blogspot.com/2014/01/convert-distance-matrix-to-2d.html
@@ -61,6 +57,11 @@ def plot_path(distances, tours):
             x2, y2 = tour_path[city2_index]
             plt.plot([x1, x2], [y1, y2], marker='o', linestyle='-', color=tour_colors[i])
 
-            
+            # Adiciona label para cada ponto do caminho
+            plt.annotate(
+                f'{x}',
+                xy=(x1, y1), xytext=(5, 5),
+                textcoords='offset points', ha='right', va='bottom'
+            )
 
     plt.show()

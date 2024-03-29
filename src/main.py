@@ -1,4 +1,5 @@
 from plot import plot_path
+import random
 
 n_cities = 17 # Total possivel: 17 (Incluindo a cidade 0)
 n_traveller = 2
@@ -32,12 +33,56 @@ def get_total_distance(tour : list):
     return total_distance
 
 # Heuristica de cidade mais proxima.
-def find_nearest_city(tours, unvisited, tour_index): 
+def find_nearest_city(tours, unvisited, tour_index, cities_per_traveller): 
     return min(unvisited, key = lambda candidate : distances[tours[tour_index][-1]][candidate])
 
 # Heuristica de cidade mais distante.
-def find_farthest_city(tours, unvisited, tour_index):
+def find_farthest_city(tours, unvisited, tour_index, cities_per_traveller):
     return max(unvisited, key = lambda candidate : distances[tours[tour_index][-1]][candidate])
+
+
+last = -1
+def two_close_cities(tours, unvisited, tour_index, cities_per_traveller):
+    global last
+
+    # Cidade que nos encontramos. 
+    # Pegando a ultima cidade.
+    current_city = tours[tour_index][-1]
+
+    # Remove a cidade reservada da lista de não visitadas temporariamente
+    if (len(tours[tour_index]) - 1 > 0):
+        unvisited = unvisited.copy()
+        unvisited.remove(last)
+
+    # Caso seja a ultima viagem vá para a cidade reservada
+    if (len(tours[tour_index]) == cities_per_traveller):
+        return last
+    # Caso seja a penultima viagem, vá para a cidade mais proxima da ultima cidade
+    elif (len(tours[tour_index]) == cities_per_traveller - 1):
+        # Distancias relativas da ultima cidade, pega a cidade mais proxima da ultima e vai nela
+        last_current_distances = [distances[last][x] for x in unvisited]
+
+        # Cidades mais proximas da ultima
+        last_closest_cities = [i for i, x in enumerate(distances[last]) if x in sorted(last_current_distances)]
+
+        return last_closest_cities[0]
+
+    # Distancia entre a cidade atual e as cidades restantes
+    # current_distances[0] equivale a distancia da cidade atual até a cidade unvisited[0]
+    current_distances = [distances[current_city][x] for x in unvisited]
+
+    if (len(tours[tour_index]) - 1 == 0):
+        # Aqui pegamos o indice das 2 cidades mais proximas
+        closest_cities = [i for i, x in enumerate(distances[current_city]) if x in sorted(current_distances)[:2]]
+
+        random.shuffle(closest_cities)
+        next = closest_cities.pop()
+        last = closest_cities.pop()
+        print(f"Last city: {last}")
+    else:
+        next = min(unvisited, key = lambda candidate : distances[tours[tour_index][-1]][candidate])
+
+    return next
 
 def solution_multiple_travellers(heuristic):
     global n_traveller
@@ -71,11 +116,13 @@ def solution_multiple_travellers(heuristic):
         if (tour_index == len(tours) - 1 and decimal_number):
             cities_per_traveller += 1
 
-        # Passa por cada cidade
-        for city_index in range(cities_per_traveller, 0, -1):
-            next = heuristic(tours, unvisited, tour_index)
+        # Passa por cada cidade usando a heuristica
+        for _ in range(cities_per_traveller, 0, -1):
+            next = heuristic(tours, unvisited, tour_index, cities_per_traveller)
             tours[tour_index].append(next)
             unvisited.remove(next)
+            
+        
 
         # Adiciona a cidade 0 já que tem que voltar pra ela
         tours[tour_index].append(0)
@@ -91,7 +138,7 @@ def solution_multiple_travellers(heuristic):
     return tours
 
 
-tours = solution_multiple_travellers(find_farthest_city)
+tours = solution_multiple_travellers(two_close_cities)
 total_distance = 0
 for tour in tours:
     #  tour1: [0, 7, 5, 8, 6, 2, 10, 9]
