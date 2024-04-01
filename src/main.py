@@ -2,7 +2,7 @@ from plot import plot_path
 import random
 
 n_cities = 17 # Total possivel: 17 (Incluindo a cidade 0)
-n_traveller = 2
+n_traveller = 1
 distances = [
     [ 0,   548,  776,  696,  582,  274,  502,  194, 308,  194, 536,  502,  388,  354,  468,  776,  662  ],
     [ 548, 0,    684,  308,  194,  502,  730,  354, 696,  742, 1084, 594,  480,  674,  1016, 868,  1210 ],
@@ -84,6 +84,53 @@ def two_close_cities(tours, unvisited, tour_index, cities_per_traveller):
 
     return next
 
+def two_opt(tours):
+    best_opt = []
+    print("tours: ", tours)
+    for tour in tours:
+        best_distance = get_total_distance(tour)
+        for i in range(1, len(tour) - 2):
+            for j in range(i + 1, len(tour) - 1):
+                new_tour = tour.copy()
+                new_tour[i:j] = new_tour[j - 1:i - 1:-1]
+                new_distance = get_total_distance(new_tour)
+
+                if (new_distance < best_distance):
+                    best_distance = new_distance
+                    best_opt = new_tour
+
+        tour = best_opt
+        print(f"tour: {tour} - {best_distance}m")
+
+
+def two_opt_v2(tours, interations):
+    best_tour = []
+    total_distance = 0
+    count = 1
+
+    for tour in tours:
+        distance = get_total_distance(tour)
+
+
+        print(f"{tour}: {distance}m")
+        total_distance += distance
+
+    print(f"Distancia total inicial: {total_distance}m")
+
+    for _ in range(interations):
+        for i in range(len(tour)):
+            print("tour de i: ", i)
+
+            sort = random.randint(0, len(tour) - 1)
+            print("sort: ", sort)
+            print("CONTINUA DAQUI, fazer metodo q usa o algoritmo 2 opt e retorna a melhor solucao, nesta parte vai se repetir quantas vezes igual ao 'interations' que é o numero de interações que o algoritmo vai fazer.")
+            print("fazendo com  apenas um caixeiro para ver se da certo, e depois aprimorar para mais caixeiros.")
+        print(f"{count}/{interations}")
+        count += 1
+        
+    return total_distance, best_tour
+            
+
 def solution_multiple_travellers(heuristic):
     global n_traveller
 
@@ -138,17 +185,12 @@ def solution_multiple_travellers(heuristic):
     return tours
 
 
-tours = solution_multiple_travellers(two_close_cities)
+tours = solution_multiple_travellers(find_nearest_city)
 total_distance = 0
-for tour in tours:
-    #  tour1: [0, 7, 5, 8, 6, 2, 10, 9]
-    #  tour2: [0, 13, 12, 11, 15, 3, 4, 1]
-    distance = get_total_distance(tour)
 
-    print(f"{tour}: {distance}m")
-    total_distance += distance
+total_distance, best_tour = two_opt_v2(tours, interations=5)
 
-print(f"Distancia total: {total_distance}m")
+print(f"Distancia total optimizada: {total_distance}m")
 print(f"Numero de cidades: {n_cities}")
 print(f"Número de caixeiros viajantes: {n_traveller}")
 
