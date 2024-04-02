@@ -116,19 +116,21 @@ def two_opt_v2(tours, interations):
         total_distance += distance
 
     print(f"Distancia total inicial: {total_distance}m")
+    
 
     for _ in range(interations):
         for i in range(1, len(tour) -1):
-            sort = random.randint(0, len(tour) - 1)
+            sort = random.randint(1, len(tour) - 2)
             # print("tour de i: ", i)
             # print("sort: ", sort)
 
             best_tour = tours.copy()
             # A LISTA "best_tour" ESTA DENTRO DE OUTRA LISTA ENTÃO COLOQUE 2: "[][]"
-
             best_tour[0][i], best_tour[0][sort] = best_tour[0][sort], best_tour[0][i]
-
-            distance = get_total_distance(best_tour)
+            
+            for tour in best_tour:
+                distance = get_total_distance(tour)
+                
             if distance < total_distance:
                 # print("MELHOROU, LISTA ATUALIZADA")
                 total_distance = distance
@@ -141,8 +143,6 @@ def two_opt_v2(tours, interations):
         print(f"{count}/{interations}")
         count += 1
     
-
-        
     return total_distance, best_tour
             
 
@@ -205,7 +205,7 @@ tours = solution_multiple_travellers(find_nearest_city)
 # Para mostrar como era o caminho anteriormente:
 # plot_path(distances, tours)
 
-total_distance, best_tour = two_opt_v2(tours, interations=100)
+total_distance, best_tour = two_opt_v2(tours, interations=1000000000)
 
 print(f"{best_tour}: {total_distance}m")
 print(f"Distancia total optimizada: {total_distance}m")
