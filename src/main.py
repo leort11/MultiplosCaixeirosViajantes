@@ -118,15 +118,30 @@ def two_opt_v2(tours, interations):
     print(f"Distancia total inicial: {total_distance}m")
 
     for _ in range(interations):
-        for i in range(len(tour)):
-            print("tour de i: ", i)
-
+        for i in range(1, len(tour) -1):
             sort = random.randint(0, len(tour) - 1)
-            print("sort: ", sort)
-            print("CONTINUA DAQUI, fazer metodo q usa o algoritmo 2 opt e retorna a melhor solucao, nesta parte vai se repetir quantas vezes igual ao 'interations' que é o numero de interações que o algoritmo vai fazer.")
-            print("fazendo com  apenas um caixeiro para ver se da certo, e depois aprimorar para mais caixeiros.")
+            # print("tour de i: ", i)
+            # print("sort: ", sort)
+
+            best_tour = tours.copy()
+            # A LISTA "best_tour" ESTA DENTRO DE OUTRA LISTA ENTÃO COLOQUE 2: "[][]"
+
+            best_tour[0][i], best_tour[0][sort] = best_tour[0][sort], best_tour[0][i]
+
+            distance = get_total_distance(best_tour)
+            if distance < total_distance:
+                # print("MELHOROU, LISTA ATUALIZADA")
+                total_distance = distance
+
+            else:
+                best_tour[0][i], best_tour[0][sort] = best_tour[0][sort], best_tour[0][i]
+                # print("PIOROU, VOLTA AO NORMAL")
+
+
         print(f"{count}/{interations}")
         count += 1
+    
+
         
     return total_distance, best_tour
             
@@ -186,12 +201,15 @@ def solution_multiple_travellers(heuristic):
 
 
 tours = solution_multiple_travellers(find_nearest_city)
-total_distance = 0
 
-total_distance, best_tour = two_opt_v2(tours, interations=5)
+# Para mostrar como era o caminho anteriormente:
+# plot_path(distances, tours)
 
+total_distance, best_tour = two_opt_v2(tours, interations=100)
+
+print(f"{best_tour}: {total_distance}m")
 print(f"Distancia total optimizada: {total_distance}m")
 print(f"Numero de cidades: {n_cities}")
 print(f"Número de caixeiros viajantes: {n_traveller}")
 
-plot_path(distances, tours)
+plot_path(distances, best_tour)
