@@ -104,57 +104,47 @@ def two_opt(tours):
 
 
 def two_opt_v2(tours, interations):
-    best_tour = []
-    total_distance = 0
-    count = 1
+    # Melhor rota encontrada
+    best_tour = tours.copy()
 
+    # Distancia total da melhor rota encontrada (começa valendo a distancia da rota inicial)
+    total_distance = 0
+
+    # Pega a distância do tour (incluindo multiplos caixeiros) e adiciona a variavel
     for tour in tours:
         distance = get_total_distance(tour)
-
-
-        print(f"{tour}: {distance}m")
         total_distance += distance
 
     print(f"Distancia total inicial: {total_distance}m")
     
-    
-    best_tour = tours.copy()
 
     for _ in range(interations):
         for i in range(1, len(tour) -1):
-            sort = random.randint(1, len(tour) - 2)
-            # print("tour de i: ", i)
-            # print("sort: ", sort)
+            # Pega a cidade com qual essa vai criar uma nova rota (Não incluindo cidade inicial e final)
+            # Também devemos impedir de que o valor a ser trocado seja o mesmo que a cidade que estamos modificando agora
+            sort = i
+            while sort == i:
+                sort = random.randint(1, len(tour) - 2)
 
-            
+            best_tour = tours.copy()
             # A LISTA "best_tour" ESTA DENTRO DE OUTRA LISTA ENTÃO COLOQUE 2: "[][]"
-
-            # x = best_tour[0][i]
-            # best_tour[0][i] = best_tour[0][sort]
-            # best_tour[0][sort] = x
-            
             best_tour[0][i], best_tour[0][sort] = best_tour[0][sort], best_tour[0][i]
             
             for tour in best_tour:
                 distance = get_total_distance(tour)
-
-                print(f"{tour}: {distance}m")
-                
                 
             if distance < total_distance:
-                # print("MELHOROU, LISTA ATUALIZADA")
+                # Atualiza a melhor distância
                 total_distance = distance
-                print(f"Trocando o indice {best_tour[0][i]} por {best_tour[0][sort]}")
 
             else:
-                best_tour[0][i], best_tour[0][sort] = best_tour[0][sort], best_tour[0][i]
-                # print("PIOROU, VOLTA AO NORMAL")
+                # Caso a distância tenha piorado, destroca
+                tour[i], tour[sort] = tour[sort], tour[i]
 
 
         print(f"{count}/{interations}")
         count += 1
-    print("best_tour: ", best_tour)
-    print("tours: ", tours)
+    
     return total_distance, best_tour
             
 
@@ -217,7 +207,7 @@ tours = solution_multiple_travellers(find_nearest_city)
 # Para mostrar como era o caminho anteriormente:
 # plot_path(distances, tours)
 
-total_distance, best_tour = two_opt_v2(tours, interations=100)
+total_distance, best_tour = two_opt_v2(tours, interations=1000000000)
 
 print(f"{best_tour}: {total_distance}m")
 print(f"Distancia total optimizada: {total_distance}m")
