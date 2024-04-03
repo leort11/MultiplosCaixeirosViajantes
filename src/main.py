@@ -119,7 +119,7 @@ def two_opt_v2(tours, interations):
     print(f"Distancia total inicial: {total_distance}m")
     
 
-    for _ in range(interations):
+    for count in range(interations):
         for i in range(1, len(tour) -1):
             # Pega a cidade com qual essa vai criar uma nova rota (Não incluindo cidade inicial e final)
             # Também devemos impedir de que o valor a ser trocado seja o mesmo que a cidade que estamos modificando agora
