@@ -142,7 +142,7 @@ def two_opt_v2(tours, interations):
                 tour[i], tour[sort] = tour[sort], tour[i]
 
 
-        print(f"{count}/{interations}")
+        #print(f"{count}/{interations}")
         count += 1
     
     return total_distance, best_tour
