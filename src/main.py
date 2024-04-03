@@ -130,7 +130,7 @@ def two_opt_v2(tours, interations):
             while sort == i:
                 sort = random.randint(1, len(tour) - 2)
 
-            best_tour = tours.copy() 
+            # best_tour = tours.copy() 
 
             # Faz a troca de rotas
             tour[i], tour[sort] = tour[sort], tour[i]
