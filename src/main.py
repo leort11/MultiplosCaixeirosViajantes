@@ -104,6 +104,7 @@ def two_opt(tours):
 
 
 def two_opt_v2(tours, interations):
+    count = 1
     # Melhor rota encontrada
     best_tour = tours.copy()
 
@@ -207,7 +208,7 @@ tours = solution_multiple_travellers(find_nearest_city)
 # Para mostrar como era o caminho anteriormente:
 # plot_path(distances, tours)
 
-total_distance, best_tour = two_opt_v2(tours, interations=1000000000)
+total_distance, best_tour = two_opt_v2(tours, interations=100000)
 
 print(f"{best_tour}: {total_distance}m")
 print(f"Distancia total optimizada: {total_distance}m")
