@@ -84,27 +84,9 @@ def two_close_cities(tours, unvisited, tour_index, cities_per_traveller):
 
     return next
 
-def two_opt(tours):
-    best_opt = []
-    print("tours: ", tours)
-    for tour in tours:
-        best_distance = get_total_distance(tour)
-        for i in range(1, len(tour) - 2):
-            for j in range(i + 1, len(tour) - 1):
-                new_tour = tour.copy()
-                new_tour[i:j] = new_tour[j - 1:i - 1:-1]
-                new_distance = get_total_distance(new_tour)
-
-                if (new_distance < best_distance):
-                    best_distance = new_distance
-                    best_opt = new_tour
-
-        tour = best_opt
-        print(f"tour: {tour} - {best_distance}m")
-
-
 def two_opt_v2(tours, interations):
     count = 1
+    count_melhorou = 0
     # Melhor rota encontrada
     best_tour = tours.copy()
 
@@ -132,21 +114,124 @@ def two_opt_v2(tours, interations):
             # Faz a troca de rotas
             tour[i], tour[sort] = tour[sort], tour[i]
 
+
             distance = get_total_distance(tour)
             if distance < total_distance:
+                count_melhorou += 1
                 # Atualiza a melhor distância
                 total_distance = distance
 
             else:
-                # Caso a distância tenha piorado, destroca
-                tour[i], tour[sort] = tour[sort], tour[i]
+                # Caso a distância tenha piorado, sorteia outro numero para trocar
+                sort2 = i
+                while sort2 == i or sort2 == sort:
+                    sort2 = random.randint(1, len(tour) - 2)
+
+                # Faz a troca de rotas com o novo valor sorteado
+                tour[sort], tour[sort2] = tour[sort2], tour[sort]
+                distance = get_total_distance(tour)
+
+                if distance < total_distance:
+                    count_melhorou += 1
+                    # Atualiza a melhor distância
+                    total_distance = distance
+                else:
+                    # Caso a distância tenha piorado, desfaz as trocas
+                    tour[sort2], tour[sort] = tour[sort], tour[sort2]
+                    tour[i], tour[sort] = tour[sort], tour[i]
 
 
-        #print(f"{count}/{interations}")
+        print(f"{count}/{interations}")
         count += 1
+    print(f"Melhorou {count_melhorou} vezes")
     
     return total_distance, best_tour
             
+
+def two_opt_v2_temperature(tours, interations):
+    print("ITERATIONS N ITERANTIONS")
+    print(f"Quantidade de swaps: {interations * sum(len(tour) - 1 for tour in tours)}")
+
+    def lerp(A, B, t):
+        return A * (1 - t) + B * t
+
+    # Configuração
+    initial_temperature = 1 #0.75 # 1 = Apenas decisões ruim, # 0.5 Meio termo, # 0 Nunca aceita decições ruim
+    #temperature_decay = 0.005
+    bad_threshold = 0.4 # Se for X porcento pior que a melhor distancia, entao volta pra melhor distancia 0.01 = 1%
+
+    # Configuração (EXTRA)
+    final_temperature = 0.00001
+
+    # Codigo
+    temperature = initial_temperature
+
+    print("pygame")
+
+    # Distancia total da melhor rota encontrada (começa valendo a distancia da rota inicial)
+    total_distance = 0
+
+    # Pega a distância do tour (incluindo multiplos caixeiros) e adiciona a variavel
+    for tour in tours:
+        distance = get_total_distance(tour)
+        total_distance += distance
+
+    print(f"Distancia total inicial: {total_distance}m")
+    
+    # Melhor rota encontrada
+    best_tour = tours[0].copy()
+
+    # Rota atual
+    current_tour = tours[0].copy() # Por enquanto só
+
+    # Quantidade de melhorias
+    times_improved = 0
+    distance = total_distance
+
+    for count in range(interations):
+        # Se a distância estiver muito ruim (X% pior, então volta pra melhor distância que ja foi encontrada)
+        result = 1 - (total_distance / distance)
+        if result >= bad_threshold:
+            current_tour = best_tour.copy()
+
+        # Diminui a temperatura
+        temperature = lerp(initial_temperature, final_temperature, (count/interations))
+        print("TALVEZ E BOM DIMINUIR A TEMPERATURA NO FOR DE BAIXO")
+
+        for i in range(1, len(tour) -1):
+            print(temperature)
+
+            # Diminui a temperatura
+            # temperature = max(temperature - temperature_decay, final_temperature)
+
+            # Pega a cidade com qual essa vai criar uma nova rota (Não incluindo cidade inicial e final)
+            # Também devemos impedir de que o valor a ser trocado seja o mesmo que a cidade que estamos modificando agora
+            sort = i
+            while sort == i:
+                sort = random.randint(1, len(tour) - 2)
+
+            # Faz a troca de rotas
+            current_tour[i], current_tour[sort] = current_tour[sort], current_tour[i]
+
+            distance = get_total_distance(current_tour)
+            
+            if distance < total_distance:
+                times_improved += 1
+
+                # Atualiza a melhor distância
+                total_distance = distance
+                best_tour = current_tour.copy()
+            else:
+                # Aleatoriamente aceita soluções piores
+                if (random.random() < temperature):
+                    continue
+
+                # Caso a distância tenha piorado, destroca
+                current_tour[i], current_tour[sort] = current_tour[sort], current_tour[i]
+    
+    print(f"Melhorado {times_improved} vezes!")
+
+    return total_distance, [best_tour]
 
 def solution_multiple_travellers(heuristic):
     global n_traveller
@@ -207,7 +292,7 @@ tours = solution_multiple_travellers(find_nearest_city)
 # Para mostrar como era o caminho anteriormente:
 # plot_path(distances, tours)
 
-total_distance, best_tour = two_opt_v2(tours, interations=100000)
+total_distance, best_tour = two_opt_v2_temperature(tours, interations=100000) 
 
 print(f"{best_tour}: {total_distance}m")
 print(f"Distancia total optimizada: {total_distance}m")

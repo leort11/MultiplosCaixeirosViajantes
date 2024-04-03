@@ -1,6 +1,0 @@
-verifica quais são as 2 cidades mais proximas do ponto inicial, 
-e faz com que o caixeiro comece em uma e termine na outra antes 
-de voltar ao inicio, mas depois de começarem uma das opções, 
-deve seguir a Heuristica da cidade mais proxima, inverter e 
-começar pelo que era o ultimo, calcular qual das 2 é o menor 
-caminho e retornar esse tour.
