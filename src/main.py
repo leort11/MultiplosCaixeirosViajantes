@@ -104,6 +104,7 @@ def two_opt(tours):
 
 
 def two_opt_v2(tours, interations):
+    count = 1
     # Melhor rota encontrada
     best_tour = tours.copy()
 
@@ -116,13 +117,9 @@ def two_opt_v2(tours, interations):
         total_distance += distance
 
     print(f"Distancia total inicial: {total_distance}m")
+    
 
-    # Roda o codigo N vezes
-    for count in range(interations):
-        tour = best_tour[0] # Só para facilitar por enquanto
-
-        # Passa por cada cidade, e verifica se a troca de rotas aleatoriamente melhora a distancia total
-        # OBS: O motivo de começar em 1 e terminar em len - 1 é porque não queremos que a cidade de partida seja diferente da cidade final
+    for _ in range(interations):
         for i in range(1, len(tour) -1):
             # Pega a cidade com qual essa vai criar uma nova rota (Não incluindo cidade inicial e final)
             # Também devemos impedir de que o valor a ser trocado seja o mesmo que a cidade que estamos modificando agora
@@ -139,11 +136,14 @@ def two_opt_v2(tours, interations):
             if distance < total_distance:
                 # Atualiza a melhor distância
                 total_distance = distance
+
             else:
                 # Caso a distância tenha piorado, destroca
                 tour[i], tour[sort] = tour[sort], tour[i]
 
-        #print(f"{count + 1}/{interations}")
+
+        print(f"{count}/{interations}")
+        count += 1
     
     return total_distance, best_tour
             
@@ -207,8 +207,7 @@ tours = solution_multiple_travellers(find_nearest_city)
 # Para mostrar como era o caminho anteriormente:
 # plot_path(distances, tours)
 
-plot_path(distances, tours)
-total_distance, best_tour = two_opt_v2(tours, interations=50000)
+total_distance, best_tour = two_opt_v2(tours, interations=100000)
 
 print(f"{best_tour}: {total_distance}m")
 print(f"Distancia total optimizada: {total_distance}m")
