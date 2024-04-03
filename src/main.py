@@ -104,30 +104,47 @@ def two_opt(tours):
 
 
 def two_opt_v2(tours, interations):
-    best_tour = []
-    total_distance = 0
     count = 1
+    # Melhor rota encontrada
+    best_tour = tours.copy()
 
+    # Distancia total da melhor rota encontrada (começa valendo a distancia da rota inicial)
+    total_distance = 0
+
+    # Pega a distância do tour (incluindo multiplos caixeiros) e adiciona a variavel
     for tour in tours:
         distance = get_total_distance(tour)
-
-
-        print(f"{tour}: {distance}m")
         total_distance += distance
 
     print(f"Distancia total inicial: {total_distance}m")
+    
 
-    for _ in range(interations):
-        for i in range(len(tour)):
-            print("tour de i: ", i)
+    for count in range(interations):
+        for i in range(1, len(tour) -1):
+            # Pega a cidade com qual essa vai criar uma nova rota (Não incluindo cidade inicial e final)
+            # Também devemos impedir de que o valor a ser trocado seja o mesmo que a cidade que estamos modificando agora
+            sort = i
+            while sort == i:
+                sort = random.randint(1, len(tour) - 2)
 
-            sort = random.randint(0, len(tour) - 1)
-            print("sort: ", sort)
-            print("CONTINUA DAQUI, fazer metodo q usa o algoritmo 2 opt e retorna a melhor solucao, nesta parte vai se repetir quantas vezes igual ao 'interations' que é o numero de interações que o algoritmo vai fazer.")
-            print("fazendo com  apenas um caixeiro para ver se da certo, e depois aprimorar para mais caixeiros.")
-        print(f"{count}/{interations}")
+            # best_tour = tours.copy() 
+
+            # Faz a troca de rotas
+            tour[i], tour[sort] = tour[sort], tour[i]
+
+            distance = get_total_distance(tour)
+            if distance < total_distance:
+                # Atualiza a melhor distância
+                total_distance = distance
+
+            else:
+                # Caso a distância tenha piorado, destroca
+                tour[i], tour[sort] = tour[sort], tour[i]
+
+
+        #print(f"{count}/{interations}")
         count += 1
-        
+    
     return total_distance, best_tour
             
 
@@ -186,12 +203,15 @@ def solution_multiple_travellers(heuristic):
 
 
 tours = solution_multiple_travellers(find_nearest_city)
-total_distance = 0
 
-total_distance, best_tour = two_opt_v2(tours, interations=5)
+# Para mostrar como era o caminho anteriormente:
+# plot_path(distances, tours)
 
+total_distance, best_tour = two_opt_v2(tours, interations=100000)
+
+print(f"{best_tour}: {total_distance}m")
 print(f"Distancia total optimizada: {total_distance}m")
 print(f"Numero de cidades: {n_cities}")
 print(f"Número de caixeiros viajantes: {n_traveller}")
 
-plot_path(distances, tours)
+plot_path(distances, best_tour)
