@@ -117,6 +117,8 @@ def two_opt_v2(tours, interations):
 
     print(f"Distancia total inicial: {total_distance}m")
     
+    
+    best_tour = tours.copy()
 
     for _ in range(interations):
         for i in range(1, len(tour) -1):
@@ -124,16 +126,25 @@ def two_opt_v2(tours, interations):
             # print("tour de i: ", i)
             # print("sort: ", sort)
 
-            best_tour = tours.copy()
+            
             # A LISTA "best_tour" ESTA DENTRO DE OUTRA LISTA ENTÃO COLOQUE 2: "[][]"
+
+            # x = best_tour[0][i]
+            # best_tour[0][i] = best_tour[0][sort]
+            # best_tour[0][sort] = x
+            
             best_tour[0][i], best_tour[0][sort] = best_tour[0][sort], best_tour[0][i]
             
             for tour in best_tour:
                 distance = get_total_distance(tour)
+
+                print(f"{tour}: {distance}m")
+                
                 
             if distance < total_distance:
                 # print("MELHOROU, LISTA ATUALIZADA")
                 total_distance = distance
+                print(f"Trocando o indice {best_tour[0][i]} por {best_tour[0][sort]}")
 
             else:
                 best_tour[0][i], best_tour[0][sort] = best_tour[0][sort], best_tour[0][i]
@@ -142,7 +153,8 @@ def two_opt_v2(tours, interations):
 
         print(f"{count}/{interations}")
         count += 1
-    
+    print("best_tour: ", best_tour)
+    print("tours: ", tours)
     return total_distance, best_tour
             
 
@@ -205,7 +217,7 @@ tours = solution_multiple_travellers(find_nearest_city)
 # Para mostrar como era o caminho anteriormente:
 # plot_path(distances, tours)
 
-total_distance, best_tour = two_opt_v2(tours, interations=1000000000)
+total_distance, best_tour = two_opt_v2(tours, interations=100)
 
 print(f"{best_tour}: {total_distance}m")
 print(f"Distancia total optimizada: {total_distance}m")
