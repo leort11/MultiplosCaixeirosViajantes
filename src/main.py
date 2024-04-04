@@ -145,10 +145,9 @@ def two_opt_v2(tours, interations):
         count += 1
     print(f"Melhorou {count_melhorou} vezes")
     
-    return total_distance, best_tour
-            
+    return total_distance, best_tour      
 
-def two_opt_v2_temperature(tours, interations):
+def two_opt_temperature(tours, interations):
     print("ITERATIONS N ITERANTIONS")
     print(f"Quantidade de swaps: {interations * sum(len(tour) - 1 for tour in tours)}")
 
@@ -287,16 +286,16 @@ def solution_multiple_travellers(heuristic):
     return tours
 
 
-tours = solution_multiple_travellers(find_nearest_city)
+tours = solution_multiple_travellers(two_close_cities)
 
 # Para mostrar como era o caminho anteriormente:
 # plot_path(distances, tours)
 
-total_distance, best_tour = two_opt_v2_temperature(tours, interations=100000) 
+total_distance, best_tour = two_opt_temperature(tours, interations=1000) 
 
 print(f"{best_tour}: {total_distance}m")
 print(f"Distancia total optimizada: {total_distance}m")
 print(f"Numero de cidades: {n_cities}")
 print(f"Número de caixeiros viajantes: {n_traveller}")
 
-plot_path(distances, best_tour)
+plot_path(distances, best_tour), plot_path(distances, tours)
