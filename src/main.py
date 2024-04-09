@@ -2,7 +2,7 @@ from plot import plot_path
 import random
 
 n_cities = 17 # Total possivel: 17 (Incluindo a cidade 0)
-n_traveller = 1
+n_traveller = 2
 distances = [
     [ 0,   548,  776,  696,  582,  274,  502,  194, 308,  194, 536,  502,  388,  354,  468,  776,  662  ],
     [ 548, 0,    684,  308,  194,  502,  730,  354, 696,  742, 1084, 594,  480,  674,  1016, 868,  1210 ],
@@ -286,16 +286,26 @@ def solution_multiple_travellers(heuristic):
     return tours
 
 
+# ESCOLHA A HEURISTICA AQUI:             V  AQUI  V
 tours = solution_multiple_travellers(two_close_cities)
 
-# Para mostrar como era o caminho anteriormente:
-# plot_path(distances, tours)
 
+# TUDO SOBRE A PRIMEIRA ROTA SEM OTIMIZAÇÃO:
+distanciatotal = 0
+for tour in tours:
+        distance = get_total_distance(tour)
+        distanciatotal += distance
+
+print(f"Distancia total inicial: {distanciatotal}m")
+print(f"tour: {tours}")
+plot_path(distances, tours)
+
+
+# TUDO SOBRE A SEGUNDA ROTA COM OTIMIZAÇÃO:
 total_distance, best_tour = two_opt_temperature(tours, interations=1000) 
 
 print(f"{best_tour}: {total_distance}m")
 print(f"Distancia total optimizada: {total_distance}m")
 print(f"Numero de cidades: {n_cities}")
 print(f"Número de caixeiros viajantes: {n_traveller}")
-
-plot_path(distances, best_tour), plot_path(distances, tours)
+plot_path(distances, best_tour), 
